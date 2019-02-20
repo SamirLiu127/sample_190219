@@ -33,6 +33,14 @@ def main():
     # filter_a.to_csv('filter_a.csv', index=False)
 
     # Filter B
+    data = {
+        '總件數': [df_all.shape[0]],
+        '總車位數': [df_all['交易筆棟數'].apply(lambda x: x.split('車位').pop()).astype(int).sum()],
+        '平均總價元': [df_all['總價元'].mean()],
+        '平均車位總價元': [df_all['車位總價元'].mean()]
+    }
+    filter_b = pd.DataFrame(data)
+    filter_b.to_csv('filter_b.csv', index=False)
     return
 
 
