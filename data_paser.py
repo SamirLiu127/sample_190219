@@ -28,9 +28,9 @@ def main():
     df_all = pd.concat(df_list)
 
     # Filter A
-    # filter_a = filter_a_1(df_all)
+    filter_a = filter_a_1(df_all)
     # filter_a = filter_a_2(df_all)
-    # filter_a.to_csv('filter_a.csv', index=False)
+    filter_a.to_csv('filter_a.csv', index=False)
 
     # Filter B
     data = {
