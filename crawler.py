@@ -47,7 +47,7 @@ def update_region_house(region, row=0):
             'nick_name': h['nick_name'],
         }
         data.update(get_house_info(h['post_id']))
-    houses_data.append(data)
+        houses_data.append(data)
     collection.insert_many(houses_data)
 
     row += len(houses)
@@ -69,16 +69,29 @@ def get_house_info(post_id):
     url = f'https://rent.591.com.tw/rent-detail-{post_id}.html'
     res = requests.get(url=url, headers=headers)
     soup = BeautifulSoup(res.text.encode('utf-8'), "html.parser")
-    info = {
-        'phone_number': soup.select_one('.dialPhoneNum')['data-value'],
-        'house_kind': soup.select('.attr li')[2].text.split('\xa0').pop()
-    }
+    try:
+        info = {
+            'phone_number': soup.select_one('.dialPhoneNum').get('data-value', ''),
+            'house_kind': soup.select('.attr li')[2].text.split('\xa0').pop()
+        }
+    except IndexError:
+        print(url)
+        info = {
+            'phone_number': soup.select_one('.dialPhoneNum').get('data-value', ''),
+            'house_kind': 'unknown'
+        }
+    except:
+        print(url)
+        info = {
+            'phone_number': 'unknown',
+            'house_kind': 'unknown'
+        }
     return info
 
 
 if __name__ == '__main__':
     collection = get_mongodb_collection()
-    update_region_house(25)
+    # update_region_house(25)
     update_region_house(1)
     update_region_house(3)
-
+    # https://rent.591.com.tw/rent-detail-5912594.html
