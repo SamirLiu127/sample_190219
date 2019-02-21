@@ -7,14 +7,23 @@ from pymongo import MongoClient
 MONGODB_URI = 'mongodb+srv://user_01:mCpvS3ThcK9hKfv@cluster0-lcunt.gcp.mongodb.net'
 
 
-def insert_mongodb(data):
+def get_mongodb_collection():
+    """
+
+    :return: mongodb collection
+    """
     conn = MongoClient(MONGODB_URI)
     db = conn.rent_house
-    collection = db.rent591
-    collection.insert_one(data)
+    return db.rent591
 
 
-def get_region_total_rows(region, row=0, data=[]):
+def update_region_house(region, row=0):
+    """
+    Update region house to mongodb
+    :param region: region code, 台北市:1 新北市:3
+    :param row: default 0
+    :return: None
+    """
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36',
         'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -25,24 +34,51 @@ def get_region_total_rows(region, row=0, data=[]):
     response = res.json()
     houses = response['data']['data']
 
+    houses_data = []
     for h in houses:
-        data.append({
+        data = {
             'post_id': h['post_id'],
-            'title': h['address_img_title']
-        })
+            'title': h['address_img_title'],
+            'region_name': h['regionname'],
+            'section_name': h['sectionname'],
+            'kind_name_img': h['kind_name_img'],  # 現況
+            'price': h['price'],
+            'linkman': h['linkman'],
+            'nick_name': h['nick_name'],
+        }
+        data.update(get_house_info(h['post_id']))
+    houses_data.append(data)
+    collection.insert_many(houses_data)
 
     row += len(houses)
     records = int(response['records'].replace(',', ''))
     if row < records:
-        get_region_total_rows(region, row=row, data=data)
-    return data
-
-
-def main():
-    data = get_region_total_rows(25)
-
+        update_region_house(region, row=row)
     return
 
 
+def get_house_info(post_id):
+    """
+
+    :param post_id: house id
+    :return: phone_number & house_kind
+    """
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36'
+    }
+    url = f'https://rent.591.com.tw/rent-detail-{post_id}.html'
+    res = requests.get(url=url, headers=headers)
+    soup = BeautifulSoup(res.text.encode('utf-8'), "html.parser")
+    info = {
+        'phone_number': soup.select_one('.dialPhoneNum')['data-value'],
+        'house_kind': soup.select('.attr li')[2].text.split('\xa0').pop()
+    }
+    return info
+
+
 if __name__ == '__main__':
-    main()
+    collection = get_mongodb_collection()
+    update_region_house(25)
+    update_region_house(1)
+    update_region_house(3)
+
