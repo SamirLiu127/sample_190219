@@ -1,10 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import re
+import sys
 import requests
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
+from pymongo.errors import BulkWriteError
 
 MONGODB_URI = 'mongodb+srv://user_01:mCpvS3ThcK9hKfv@cluster0-lcunt.gcp.mongodb.net'
+sys.setrecursionlimit(3000)
 
 
 def get_mongodb_collection():
@@ -14,10 +18,10 @@ def get_mongodb_collection():
     """
     conn = MongoClient(MONGODB_URI)
     db = conn.rent_house
-    return db.rent591
+    return db.house591
 
 
-def update_region_house(region, row=0):
+def update_region_house(region, row=0, houses_data=[]):
     """
     Update region house to mongodb
     :param region: region code, 台北市:1 新北市:3
@@ -34,7 +38,6 @@ def update_region_house(region, row=0):
     response = res.json()
     houses = response['data']['data']
 
-    houses_data = []
     for h in houses:
         data = {
             'post_id': h['post_id'],
@@ -48,12 +51,18 @@ def update_region_house(region, row=0):
         }
         data.update(get_house_info(h['post_id']))
         houses_data.append(data)
-    collection.insert_many(houses_data)
+    if len(houses_data) >= 300:
+        COLLECTION.insert_many(houses_data)
+        houses_data = []
 
     row += len(houses)
     records = int(response['records'].replace(',', ''))
     if row < records:
-        update_region_house(region, row=row)
+        update_region_house(region, row=row, houses_data=houses_data)
+    try:
+        COLLECTION.insert_many(houses_data)
+    except BulkWriteError as exc:
+        exc.details
     return
 
 
@@ -69,29 +78,26 @@ def get_house_info(post_id):
     url = f'https://rent.591.com.tw/rent-detail-{post_id}.html'
     res = requests.get(url=url, headers=headers)
     soup = BeautifulSoup(res.text.encode('utf-8'), "html.parser")
-    try:
-        info = {
-            'phone_number': soup.select_one('.dialPhoneNum').get('data-value', ''),
-            'house_kind': soup.select('.attr li')[2].text.split('\xa0').pop()
-        }
-    except IndexError:
-        print(url)
-        info = {
-            'phone_number': soup.select_one('.dialPhoneNum').get('data-value', ''),
-            'house_kind': 'unknown'
-        }
-    except:
-        print(url)
-        info = {
-            'phone_number': 'unknown',
-            'house_kind': 'unknown'
-        }
-    return info
+
+    house_kind_tag = soup.find('li', text=re.compile('型態'))
+    house_kind = house_kind_tag.text.split('\xa0').pop() if house_kind_tag else 'unknown'
+
+    phone_number_tag = soup.select_one('.dialPhoneNum')
+    phone_number = phone_number_tag['data-value'] if phone_number_tag else 'unknown'
+    return {
+        'phone_number': phone_number,
+        'house_kind': house_kind
+    }
 
 
 if __name__ == '__main__':
-    collection = get_mongodb_collection()
+    COLLECTION = get_mongodb_collection()
     # update_region_house(25)
-    update_region_house(1)
+    # update_region_house(1)
+    # print('region 1 Done!!')
     update_region_house(3)
+    print('region 3 Done!!')
     # https://rent.591.com.tw/rent-detail-5912594.html
+
+    # https://rent.591.com.tw/rent-detail-7287067.html
+    # https://rent.591.com.tw/rent-detail-5890212.html

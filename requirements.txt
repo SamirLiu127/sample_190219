@@ -2,4 +2,4 @@ pandas==0.23.4
 pymongo==3.7.2
 dnspython==1.16.0
 requests==2.21.0
-BeautifulSoup4==4.6.3
+BeautifulSoup4==4.7.1
