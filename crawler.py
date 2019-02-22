@@ -40,14 +40,24 @@ def update_region_house(region, row=0, houses_data=[]):
 
     for h in houses:
         data = {
-            'post_id': h['post_id'],
-            'title': h['address_img_title'],
-            'region_name': h['regionname'],
-            'section_name': h['sectionname'],
-            'kind_name_img': h['kind_name_img'],  # 現況
+            'post_id': h['post_id'],  # 物件ID
+            'title': h['address_img_title'],  # 物件標題
+            'region_name': h['region_name'],  # 縣市
+            'section_name': h['section_name'],  # 區
+            'street_name': h['street_name'],  # 路
+            'alley_name': h['alley_name'],  # 巷
+            'lane_name': h['lane_name'],  # 弄
+            'addr_number_name': h['addr_number_name'],  # 號
+            'floorInfo': h['floorInfo'],  # 樓
+            'floor': h['floor'],  # 總樓層
+            'layout': h['layout'],  # 格局
+            'kind_name': h['kind_name'],  # 現況
+            'icon_name': h['icon_name'],
             'price': h['price'],
-            'linkman': h['linkman'],
-            'nick_name': h['nick_name'],
+            'unit': h['unit'],
+            'linkman': h['linkman'],  # 聯絡人
+            'nick_name': h['nick_name'],  # 聯絡人身份
+            'update_time': h['ltime']
         }
         data.update(get_house_info(h['post_id']))
         houses_data.append(data)
@@ -62,7 +72,7 @@ def update_region_house(region, row=0, houses_data=[]):
     try:
         COLLECTION.insert_many(houses_data)
     except BulkWriteError as exc:
-        exc.details
+        print(exc.details)
     return
 
 
@@ -80,21 +90,29 @@ def get_house_info(post_id):
     soup = BeautifulSoup(res.text.encode('utf-8'), "html.parser")
 
     house_kind_tag = soup.find('li', text=re.compile('型態'))
-    house_kind = house_kind_tag.text.split('\xa0').pop() if house_kind_tag else 'unknown'
+    house_kind = house_kind_tag.text.split('\xa0').pop() if house_kind_tag else ''
 
     phone_number_tag = soup.select_one('.dialPhoneNum')
-    phone_number = phone_number_tag['data-value'] if phone_number_tag else 'unknown'
+    phone_number = phone_number_tag['data-value'] if phone_number_tag else ''
+
+    gender_title_tag = soup.find('div', text=re.compile('性別要求'))
+    gender = gender_title_tag.next_sibling.em.text if gender_title_tag else ''
+
+    house_info_tag = soup.select_one('.houseIntro')
+    house_info = house_info_tag.text if house_info_tag else ''
     return {
-        'phone_number': phone_number,
-        'house_kind': house_kind
+        'phone_number': phone_number,  # 聯絡人電話
+        'house_kind': house_kind,  # 型態
+        'gender': gender,  # 性別要求
+        'house_info': house_info  # 屋況說明
     }
 
 
 if __name__ == '__main__':
     COLLECTION = get_mongodb_collection()
     # update_region_house(25)
-    # update_region_house(1)
-    # print('region 1 Done!!')
+    update_region_house(1)
+    print('region 1 Done!!')
     update_region_house(3)
     print('region 3 Done!!')
     # https://rent.591.com.tw/rent-detail-5912594.html
