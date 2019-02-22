@@ -18,7 +18,7 @@ def get_mongodb_collection():
     """
     conn = MongoClient(MONGODB_URI)
     db = conn.rent_house
-    return db.house591
+    return db.rent591
 
 
 def update_region_house(region, row=0, houses_data=[]):
