@@ -62,7 +62,10 @@ def update_region_house(region, row=0, houses_data=[]):
         data.update(get_house_info(h['post_id']))
         houses_data.append(data)
     if len(houses_data) >= 300:
-        COLLECTION.insert_many(houses_data)
+        try:
+            COLLECTION.insert_many(houses_data)
+        except BulkWriteError as exc:
+            print(exc.details)
         houses_data = []
 
     row += len(houses)
@@ -109,12 +112,11 @@ def get_house_info(post_id):
 
 
 if __name__ == '__main__':
+    region = sys.argv[1]
+    print(f'Start update {region}')
     COLLECTION = get_mongodb_collection()
-    # update_region_house(25)
-    update_region_house(1)
-    print('region 1 Done!!')
-    update_region_house(3)
-    print('region 3 Done!!')
+    update_region_house(region)
+    print(f'region {region} Done!!')
     # https://rent.591.com.tw/rent-detail-5912594.html
 
     # https://rent.591.com.tw/rent-detail-7287067.html
