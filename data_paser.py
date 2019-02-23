@@ -30,7 +30,7 @@ def main():
     # Filter A
     filter_a = filter_a_1(df_all)
     # filter_a = filter_a_2(df_all)
-    filter_a.to_csv('filter_a.csv', index=False)
+    filter_a.to_csv('source/filter_a.csv', index=False)
 
     # Filter B
     data = {
@@ -40,7 +40,7 @@ def main():
         '平均車位總價元': [df_all['車位總價元'].mean()]
     }
     filter_b = pd.DataFrame(data)
-    filter_b.to_csv('filter_b.csv', index=False)
+    filter_b.to_csv('source/filter_b.csv', index=False)
     return
 
 
