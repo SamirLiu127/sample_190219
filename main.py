@@ -37,7 +37,7 @@ def search():
         query.update(get_gender(gender))
     if owner_name or owner_gender:
         query.update(get_owner(owner_name, owner_gender))
-    if owner_self != '':
+    if owner_self:
         query.update(get_owner_self(owner_self))
     if owner_phone:
         query.update(get_owner_phone(owner_phone))
