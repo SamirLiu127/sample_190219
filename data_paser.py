@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import re
 import pandas as pd
 
 
@@ -35,7 +36,7 @@ def main():
     # Filter B
     data = {
         '總件數': [df_all.shape[0]],
-        '總車位數': [df_all['交易筆棟數'].apply(lambda x: x.split('車位').pop()).astype(int).sum()],
+        '總車位數': [df_all['交易筆棟數'].apply(lambda x: re.findall('[0-9]+', x)[2]).astype(int).sum()],
         '平均總價元': [df_all['總價元'].mean()],
         '平均車位總價元': [df_all['車位總價元'].mean()]
     }
