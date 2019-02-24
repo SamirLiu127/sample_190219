@@ -1,24 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from flask import Flask, jsonify, request
+from flasgger import Swagger
 from flask_pymongo import PyMongo
 
 
 app = Flask(__name__)
+swagger = Swagger(app, template_file='api.yaml')
 app.config['MONGO_URI'] = "mongodb+srv://user_reader:8d8iNPusNaPgXfw@cluster0-lcunt.gcp.mongodb.net/rent_house"
 mongo = PyMongo(app)
 
 
 @app.route("/")
 def home_page():
-    response = mongo.db.rent591.find({
-        "linkman": {"$regex": "^林.*"}
-    })
-    output = []
-    for doc in response:
-        del doc['_id']
-        output.append(doc)
-    return jsonify(output)
+    return '<a href="/apidocs">Swagger API Document</>'
 
 
 @app.route("/search")

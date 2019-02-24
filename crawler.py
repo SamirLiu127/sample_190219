@@ -7,7 +7,9 @@ from bs4 import BeautifulSoup
 from pymongo import MongoClient
 from pymongo.errors import BulkWriteError
 
-MONGODB_URI = 'mongodb+srv://user_01:mCpvS3ThcK9hKfv@cluster0-lcunt.gcp.mongodb.net'
+USERNAME = 'USERNAME'
+PASSWORD = 'PASSWORD'
+MONGODB_URI = f'mongodb+srv://{USERNAME}:{PASSWORD}@cluster0-lcunt.gcp.mongodb.net'
 sys.setrecursionlimit(3000)
 
 

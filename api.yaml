@@ -1,0 +1,141 @@
+openapi: 3.0.1
+info:
+  title: Rent591 Search
+  description: ''
+  version: '0.1'
+servers:
+  - url: 'http://127.0.0.1:8080'
+    description: local
+tags:
+  - name: Search
+    description: Search API
+components:
+  schemas:
+    HouseInfo:
+      type: array
+      items:
+        type: object
+        properties:
+          addr_number_name:
+            description: '號'
+            type: string
+          alley_name:
+            description: '巷'
+            type: string
+          floor:
+            description: '樓'
+            type: integer
+          floorInfo:
+            description: '總樓層'
+            type: string
+          gender:
+            description: '可入住性別'
+            type: string
+          house_info:
+            description: '房屋資訊'
+            type: string
+          house_kind:
+            description: '型態'
+            type: string
+          icon_name:
+            description: '出租型態'
+            type: string
+          kind_name:
+            description: '現況'
+            type: string
+          lane_name:
+            description: '弄'
+            type: string
+          layout:
+            description: '格局'
+            type: string
+          linkman:
+            description: '聯絡人'
+            type: string
+          nick_name:
+            description: '屋主'
+            type: string
+          phone_number:
+            description: '聯絡電話'
+            type: string
+          post_id:
+            description: '物件編號'
+            type: integer
+          price:
+            description: '價錢'
+            type: string
+          region_name:
+            description: '縣市'
+            type: string
+          section_name:
+            description: '地區'
+            type: string
+          street_name:
+            description: '路'
+            type: string
+          title:
+            description: '物件標題'
+            type: string
+          unit:
+            description: '付款週期'
+            type: string
+          update_time:
+            description: '最後更新時間'
+            type: string
+paths:
+  '/search':
+    summary: 取得租屋資訊
+    description: 依據條件回傳租屋資訊
+    get:
+      tags:
+        - Search
+      parameters:
+        - name: region
+          in: query
+          description: 地區編號,預設全部, 1：台北市, 3：新北市
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: gender
+          in: query
+          description: 可入住性別,預設全部, 1：男生, 0：女生
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: owner_name
+          in: query
+          description: 屋主姓氏,預設全部, ex：吳
+          required: false
+          schema:
+            type: string
+            example: '吳'
+        - name: owner_gender
+          in: query
+          description: 屋主性別,預設全部, 1：先生, 0：小姐
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: owner_self
+          in: query
+          description: 屋主自行刊登,預設全部, 1：True, 0：False
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: owner_phone
+          in: query
+          description: 屋主電話,預設全部, ex：0910-111-222
+          required: false
+          schema:
+            type: string
+            example: '0916-861-540'
+      responses:
+        '200':
+          description: 租屋資訊
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HouseInfo'
