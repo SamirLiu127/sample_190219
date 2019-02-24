@@ -17,7 +17,8 @@ def filter_a_1(df):
 
 # Filter A method 2 (Not Good)
 def filter_a_2(df):
-    filter_a = df[(df['主要用途'] == '住家用') & (df['建物型態'].str.contains('住宅大樓'))]
+    filter_a = df[(df['主要用途'] == '住家用') &
+                  (df['建物型態'].str.contains('住宅大樓'))]
     filter_a = filter_a[~filter_a['總樓層數'].isin(['十一層', '十二層'])]
     return filter_a
 
@@ -29,9 +30,8 @@ def main():
     df_all = pd.concat(df_list)
 
     # Filter A
-    filter_a = filter_a_1(df_all)
-    # filter_a = filter_a_2(df_all)
-    filter_a.to_csv('source/filter_a.csv', index=False)
+    # filter_a = filter_a_1(df_all)
+    filter_a = filter_a_2(df_all)
 
     # Filter B
     data = {
@@ -41,6 +41,9 @@ def main():
         '平均車位總價元': [df_all['車位總價元'].mean()]
     }
     filter_b = pd.DataFrame(data)
+
+    # Output
+    filter_a.to_csv('source/filter_a.csv', index=False)
     filter_b.to_csv('source/filter_b.csv', index=False)
     return
 
